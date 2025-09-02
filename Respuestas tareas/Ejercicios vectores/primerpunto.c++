@@ -1,47 +1,58 @@
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 class Vector {
-private:
-    int *storage;
-
-public:
-    Vector() {storage = new int[10];} //QUEDA EN EL HEAP
-    ~Vector() {delete[] storage;} //LIBERA EL HEAP
-    void LlenarEspacios () {
-        for (int i = 0; i < 10; i++) {
-            storage[i] = i;
+    private:
+        double * storage; //PUNTERO AL HEAP RESERVADO
+        int size; //DIMENSIÓN DEL VECTOR
+    public:
+        // CONSTRUCTORES
+        Vector (int s) { //INICIALIZA UN VECTOR DE DIMENSIÓN S EN CEROS
+            size = s;
+            storage = new double[s];
+            for (int i = 0; i < s; i++) {
+                storage[i] = 0;
+            }
         }
-    }
-    void MostrarElementos () {
-        for (int i = 0; i < 10; i++) {
-            printf("Elemento %d: %d\n", i+1, storage[i]);
+        Vector (int s, const double init[]) { // INICIALIZA LOS VALORES DEL VECTOR CON UN ARRAY
+            size = s;
+            storage = new double[s];
+            for (int i = 0; i < s; i++) {
+                storage[i] = init[i];
+            }
         }
-        cout << endl;
-    }
-    int* getStorage() { return storage; }
-int SumaElementos(int *A) {
-    int suma = 0;
-    for (int i = 0; i < 10; i++) {
-        suma += A[i];
-    };
-    return suma;
-}
-}; // Cierra la definición de la clase Vector
-
-int SumaElementos(int *A) {
-    int suma = 0;
-    for (int i = 0; i < 10; i++) {
-        suma += A[i];
-    }
-    return suma;
-}
-
+        Vector (const Vector& other) {//CONSTRUCTOR DE COPIA
+            size = other.size;
+            storage = new double[other.size];
+            for (int i = 0; i < other.size; i++) {
+                storage[i] = other.storage[i];
+            }
+        }
+        ~Vector () { //DESTRUCTOR
+            delete[] storage; 
+        }
+        // ------------------------------------------ METODOS ------------------------------------------
+        double SumaElementosVectores() {
+            double resultado_suma = 0;
+            for (int i = 0; i < size; i++) {
+                resultado_suma += storage[i];
+            }
+            return resultado_suma;
+        }
+        void ImprimirVector() {
+            for (int i = 0; i < size; i++) {
+                std::cout << storage[i] << " ";
+            }
+            std::cout << std::endl;
+        }
+};
 int main() {
-    Vector B;
-    B.LlenarEspacios();
-    B.MostrarElementos();
-    int suma = SumaElementos(B.getStorage());
-    cout << "La suma de los elementos es: " << suma << endl;
+    double vector_a[] = {1.0, 2.0, 3.0, 4.0, 5.0};
+    Vector A(5, vector_a);
+    std::cout << "Vector A: ";
+    A.ImprimirVector();
+    double suma = A.SumaElementosVectores();
+    std::cout << "Suma de los elementos del vector A: " << suma << std::endl;
     return 0;
 }

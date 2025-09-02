@@ -115,7 +115,7 @@ int main() {
     resta.ImprimirVector();
     std::cout << "\n";
 
-    std::cout <<"Multiplicación de A por el escalar 10: ";
+    std::cout <<"Multiplicacion de A por el escalar 10: ";
     AlgebraVector<double> multiplicacion = a.MultiplicacionEscalar(10);
     multiplicacion.ImprimirVector();
     std::cout << "\n";

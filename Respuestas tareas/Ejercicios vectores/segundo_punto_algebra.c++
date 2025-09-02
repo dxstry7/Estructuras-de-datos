@@ -1,194 +1,230 @@
 #include <iostream>
 #include <cmath>
 using namespace std;
+
 // ---------------------------------------------------------
 // (1) Clase plantilla AlgebraVector
 // ---------------------------------------------------------
 
-template <typename V> class AlgebraVector {
-    private:
-        V *storage; //Puntero al heap
-        int size; //Dimensión del vector
-    public:
-        // ------------------------------------------ CONSTRUCTORES ------------------------------------------
-        AlgebraVector(int s) { //INICIALIZA UN VECTOR DE DIMENSIÓN s, este solo es para crear un vector de ceros sin copiar datos de un array
-            size = s;
-            storage = new V[s]; //Reserva memoria en el heap
-            for (int i = 0; i < s; i++) {
-                storage[i] = 0; //Inicializa en 0
-            }
+template <typename V>
+class AlgebraVector {
+private:
+    V *storage;
+    int size;
+
+public:
+    // ------------------------------------------ CONSTRUCTORES ------------------------------------------
+    AlgebraVector(int s) { //INICIALIZA UN VECTOR DE DIMENSIÓN 0 RELLENANDO TODOS SUS VALORES CON CERO
+        size = s;
+        storage = new V[s];
+        for (int i = 0; i < size; i++) {
+            storage[i] = 0;
         }
-        AlgebraVector (int s, const V init[]) {
-            size = s;
-            storage = new V[s];
-            for (int i = 0; i < s; i++) {
-                storage[i] = init[i];
-            }
+    }
+
+    AlgebraVector(int s, const V init[]) {
+        size = s;
+        storage = new V[s];
+        for (int i = 0; i < size; i++) {
+            storage[i] = init[i];
         }
-        AlgebraVector (const AlgebraVector& other) { //CONSTRUCTOR DE COPIA
+    }
+
+    AlgebraVector(const AlgebraVector& other) { //CONSTRUCTOR DE COPIA
+        size = other.size;
+        storage = new V[size];
+        for (int i = 0; i < size; i++) {
+            storage[i] = other.storage[i];
+        }
+    }
+
+    // ------------------------------------------ DESTRUCTOR ------------------------------------------
+    ~AlgebraVector() {
+        delete[] storage;
+    }
+
+    // ------------------------------------------ COPY ASSIGNMENT OPERATOR ------------------------------------------
+    AlgebraVector& operator=(const AlgebraVector& other) {
+        if (this != &other) {
+            delete[] storage;
             size = other.size;
-            storage = new V[other.size];
-            for (int i = 0; i < other.size; i++) {
+            storage = new V[size];
+            for (int i = 0; i < size; i++) {
                 storage[i] = other.storage[i];
             }
         }
-        ~AlgebraVector() { //DESTRUCTOR
-            delete[] storage; //Libera memoria en el heap
-        }
-        // ------------------------------------------ METODOS ------------------------------------------
-        AlgebraVector<V> SumaVectores (const AlgebraVector& other) {
-            if (size != other.size) {
-                std::cout <<"Error: Los vectores deben tener la misma dimensión para sumar.\n";
-                return AlgebraVector<V>(0);
-            } else {
-                AlgebraVector<V> ResultadoSuma(size);
-                for (int i = 0; i < size; i++) {
-                    ResultadoSuma.storage[i] = storage[i] + other.storage[i];
-                }
-                return ResultadoSuma;
-            }
-        };
-        AlgebraVector<V> RestaVectores (const AlgebraVector& other) {
-            if (size != other.size) {
-                std::cout <<"Error: Los vectores deben tener la misma dimensión para restar.\n";
-                return AlgebraVector<V>(0);
-            } else {
-                AlgebraVector<V> ResultadoResta(size);
-                for (int i = 0; i < size; i++) {
-                    ResultadoResta.storage[i] = storage[i] - other.storage[i];
-                }
-                return ResultadoResta;
-            }
-        }
-        AlgebraVector<V> MultiplicacionEscalar (double escalar) const {
-            AlgebraVector<V> ResultadoMultiplicacion(size);
-            for (int i = 0; i < size; i++) {
-                ResultadoMultiplicacion.storage[i] = storage[i] * escalar;
-            }
-            return ResultadoMultiplicacion;
-        };
-        V ProductoPunto (const AlgebraVector& other) const {
-            if (size != other.size){
-                std:: cout <<"Error: Los vectores deben tener la misma dimensión para el producto punto.\n";
-                return 0;
-            } else {    
-                V resultado = 0;
-                for (int i = 0; i < size; i++) {
-                    resultado += storage[i] * other.storage[i];
-                }
-                return resultado;
-            }
-        };
-        V Magnitud () const {
-            V discriminante = 0;
-            for (int i = 0; i< size; i++) {
-                discriminante += storage[i] * storage[i];
-            }
-            return sqrt(discriminante);
-        };
-        AlgebraVector<V> ImprimirVector() {
-            for (int i = 0; i < size; i++) {
-                std::cout << storage[i] << " ";
-            }
-            return *this;
-        };
-};
-// ---------------------------------------------------------
-// (2) Clase plantilla MatrizAlgebra
-// ---------------------------------------------------------
-class MatrizAlgebra {
-    private:
-        int filas, columnas;
-        AlgebraVector<double>** storage;
-    public: 
-        // ------------------------------------------ CONSTRUCTORES ------------------------------------------
-        MatrizAlgebra(int f, int c) { //INICIALIZA UNA MATRIZ DE DIMENSIONES F*C CON TODOS SUS ELEMENTOS EN 0
-            filas = f;
-            columnas = c;
-            storage = new AlgebraVector<double>*[filas];
-            for (int i = 0; i < filas; ++i) {
-                storage[i] = new AlgebraVector<double>(columnas);
-            }
-        }
-        MatrizAlgebra(int f, int c, const double init[]) { //INICIALIZA UNA MATRIZ DE DIMENSIONES F*C COPIANDO LOS DATOS DE UN ARRAY
-            filas = f;
-            columnas = c;
-            storage = new AlgebraVector<double>*[filas];
-            for (int i = 0; i < filas; ++i) {
-                storage[i] = new AlgebraVector<double>(columnas, &init[i * columnas]);
-            }
-        }
-        MatrizAlgebra(const MatrizAlgebra& other) { //CONSTRUCTOR DE COPIA
-            filas = other.filas;
-            columnas = other.columnas;
-            storage = new AlgebraVector<double>*[filas];
-            for (int i = 0; i < filas; ++i) {
-                storage[i] = new AlgebraVector<double>(*(other.storage[i]));
-            }
-        }
-        ~MatrizAlgebra() { //DESTRUCTOR
-            for (int i = 0; i < filas; ++i) {
-                delete storage[i];
-            }
-            delete[] storage;
-        }
-        // ------------------------------------------ METODOS ------------------------------------------
-        MatrizAlgebra SumaMatrices (const MatrizAlgebra& other) {
-            if (filas != other.filas || columnas != other.columnas) {
-                std::cout <<"Error: To do the sum, both matrices musth have the same dimensions. \n";
-                return MatrizAlgebra(0,0);
-            } else {
-                MatrizAlgebra ResultadoSuma (filas, columnas);
-                for (int i = 0; i < filas; i++) {
-                    for (int j = 0; j < columnas; j++) {
-                        ResultadoSuma.storage[i][j] = storage[i][j].SumaVectores(other.storage[i][j]);
-                    }
-                }
-            }
-        }
-
-        MatrizAlgebra MultiplicacionEscalar (int escalar) {
-            MatrizAlgebra ResultadoM (filas, columnas);
-            for (int i = 0; i < filas; i++) {
-                *(ResultadoM.storage[i]) = storage[i]->MultiplicacionEscalar(escalar);
-            }
-        }
-
-        MatrizAlgebra Transpuesta () {
-            MatrizAlgebra ResultadoT (columnas, filas);
-            for (int i = 0; i < columnas; i++) {
-                for (int j = 0; j < filas; j++) {
-                    ResultadoT.storage[i][j] = storage[j][i];
-                }
-            }
-            return ResultadoT;
-        }
-
-        MatrizAlgebra VectorMatriz(const MatrizAlgebra& vec) { //SE TOMARÁ DE LA FORMA Ax = B
-            if (columnas != vec.filas) {
-                std::cout <<"Error: The number of columns in the first matrix must be equal to the number of rows in the second matrix.\n";
-                return MatrizAlgebra(0,0);
-            } 
-            MatrizAlgebra ResultadoVM (filas, vec.columnas);
-            for (int i = 0; i < filas; i++) {
-                double suma = 0;
-                for (int j = 0; j < vec.columnas; j++) {
-                    suma += storage[i][j].ProductoPunto(vec.storage[j][0]);
-                }
-                ResultadoVM.storage[i][0] = suma;
-            }
-            return ResultadoVM;
+        return *this;
     }
-        MatrizAlgebra ImprimirMatriz() {
-            for (int i = 0; i < filas; i++) {
-                storage[i]->ImprimirVector();
-                std::cout << std::endl;
-            }
+
+    // ------------------------------------------ OPERADORES ------------------------------------------
+    V& operator[](int index) { //PERMITE ACCEDER A LOS ELEMENTOS INTERNOS DE UNA INSTANCIA DE CLASE, ESTA VERSIÓN PERMITE MODIFICAR LOS OBJETOS
+        return storage[index];
+    }
+
+    const V& operator[](int index) const {  //VERSIÓN PARA OBJETOS CONSTANTES, NO PERMITE MODIFICAR EL OBJETO, SOLO LEERLO
+        return storage[index];
+    }
+
+    // ------------------------------------------ MÉTODOS ------------------------------------------
+    AlgebraVector<V> SumaVectores(const AlgebraVector& other) const {
+        if (size != other.size) {
+            cout << "Error: los vectores deben tener la misma dimensión para sumar.\n";
+            return AlgebraVector<V>(0);
         }
+        AlgebraVector<V> resultado(size);
+        for (int i = 0; i < size; i++) {
+            resultado.storage[i] = storage[i] + other.storage[i];
+        }
+        return resultado;
+    }
+
+    AlgebraVector<V> RestaVectores(const AlgebraVector& other) const {
+        if (size != other.size) {
+            cout << "Error: los vectores deben tener la misma dimensión para restar.\n";
+            return AlgebraVector<V>(0);
+        }
+        AlgebraVector<V> resultado(size);
+        for (int i = 0; i < size; i++) {
+            resultado.storage[i] = storage[i] - other.storage[i];
+        }
+        return resultado;
+    }
+
+    AlgebraVector<V> MultiplicacionEscalar(double escalar) const {
+        AlgebraVector<V> resultado(size);
+        for (int i = 0; i < size; i++) {
+            resultado.storage[i] = storage[i] * escalar;
+        }
+        return resultado;
+    }
+
+    V ProductoPunto(const AlgebraVector& other) const {
+        if (size != other.size) {
+            cout << "Error: los vectores deben tener la misma dimensión para el producto punto.\n";
+            return V(0);
+        }
+        V sum = 0;
+        for (int i = 0; i < size; i++) {
+            sum += storage[i] * other.storage[i];
+        }
+        return sum;
+    }
+
+    V Magnitud() const {
+        V sum = 0;
+        for (int i = 0; i < size; i++) {
+            sum += storage[i] * storage[i];
+        }
+        return sqrt(sum);
+    }
+
+    void ImprimirVector() const {
+        for (int i = 0; i < size; i++) {
+            cout << storage[i] << " ";
+        }
+    }
 };
 
-int main () {
-    // ---------------------------------------------------------
+// ---------------------------------------------------------
+// (2) Clase MatrizAlgebra
+// ---------------------------------------------------------
+
+class MatrizAlgebra {
+private:
+    int filas, columnas;
+    AlgebraVector<double>** storage;
+
+public:
+    // ------------------------------------------ CONSTRUCTORES ------------------------------------------
+    MatrizAlgebra(int f, int c) : filas(f), columnas(c) {
+        storage = new AlgebraVector<double>*[filas];
+        for (int i = 0; i < filas; ++i) {
+            storage[i] = new AlgebraVector<double>(columnas);
+        }
+    }
+
+    MatrizAlgebra(int f, int c, const double init[])
+        : filas(f), columnas(c) {
+        storage = new AlgebraVector<double>*[filas];
+        for (int i = 0; i < filas; ++i) {
+            storage[i] = new AlgebraVector<double>(columnas, &init[i * columnas]);
+        }
+    }
+
+    MatrizAlgebra(const MatrizAlgebra& other)
+        : filas(other.filas), columnas(other.columnas) {
+        storage = new AlgebraVector<double>*[filas];
+        for (int i = 0; i < filas; ++i) {
+            storage[i] = new AlgebraVector<double>(*(other.storage[i]));
+        }
+    }
+
+    // ------------------------------------------ DESTRUCTOR ------------------------------------------
+    ~MatrizAlgebra() {
+        for (int i = 0; i < filas; ++i) {
+            delete storage[i];
+        }
+        delete[] storage;
+    }
+
+    // ------------------------------------------ MÉTODOS ------------------------------------------
+    MatrizAlgebra SumaMatrices(const MatrizAlgebra& other) const {
+        if (filas != other.filas || columnas != other.columnas) {
+            cout << "Error: las matrices deben tener las mismas dimensiones para sumar.\n";
+            return MatrizAlgebra(0, 0);
+        }
+        MatrizAlgebra resultado(filas, columnas);
+        for (int i = 0; i < filas; ++i) {
+            *resultado.storage[i] =
+                storage[i]->SumaVectores(*other.storage[i]);
+        }
+        return resultado;
+    }
+
+    MatrizAlgebra MultiplicacionEscalar(double escalar) const {
+        MatrizAlgebra resultado(filas, columnas);
+        for (int i = 0; i < filas; ++i) {
+            *resultado.storage[i] =
+                storage[i]->MultiplicacionEscalar(escalar);
+        }
+        return resultado;
+    }
+
+    MatrizAlgebra Transpuesta() const {
+        MatrizAlgebra resultado(columnas, filas);
+        for (int i = 0; i < columnas; ++i) {
+            for (int j = 0; j < filas; ++j) {
+                (*resultado.storage[i])[j] = (*storage[j])[i];
+            }
+        }
+        return resultado;
+    }
+
+    MatrizAlgebra VectorMatriz(const MatrizAlgebra& vec) const {
+        if (columnas != vec.filas) {
+            cout << "Error: columnas de A deben igual filas de X.\n";
+            return MatrizAlgebra(0, 0);
+        }
+        MatrizAlgebra resultado(filas, vec.columnas);
+        for (int i = 0; i < filas; ++i) {
+            double sum = 0;
+            for (int j = 0; j < columnas; ++j) {
+                sum += (*storage[i])[j] * (*vec.storage[j])[0];
+            }
+            (*resultado.storage[i])[0] = sum;
+        }
+        return resultado;
+    }
+
+    void ImprimirMatriz() const {
+        for (int i = 0; i < filas; ++i) {
+            storage[i]->ImprimirVector();
+            cout << endl;
+        }
+    }
+};
+
+int main() {
     double matrizA[] = {
         1, 3, 0,
         2, 4, 1,
@@ -204,27 +240,35 @@ int main () {
         0,
         3
     };
+
     MatrizAlgebra A(3, 3, matrizA);
     MatrizAlgebra B(3, 3, matrizB);
     MatrizAlgebra X(3, 1, vectorX);
-    
-    std::cout << "Matriz A: \n";
+
+    cout << "Matriz A:\n";
     A.ImprimirMatriz();
-    std::cout << "Matriz B: \n";
+
+    cout << "Matriz B:\n";
     B.ImprimirMatriz();
-    std::cout << "Vector X: \n";
+
+    cout << "Vector X:\n";
     X.ImprimirMatriz();
 
-    std::cout << "Suma de A y B: \n";
+    cout << "Suma de A y B:\n";
     MatrizAlgebra C = A.SumaMatrices(B);
     C.ImprimirMatriz();
-    std::cout << "Multiplicación de A por el escalar 2: \n";
+
+    cout << "Multiplicación de A por el escalar 2:\n";
     MatrizAlgebra D = A.MultiplicacionEscalar(2);
     D.ImprimirMatriz();
-    std::cout << "Transpuesta de A: \n";
+
+    cout << "Transpuesta de A:\n";
     MatrizAlgebra E = A.Transpuesta();
     E.ImprimirMatriz();
-    std::cout << "Producto de A por el vector X: \n";
+
+    cout << "Producto de A por el vector X:\n";
     MatrizAlgebra F = A.VectorMatriz(X);
     F.ImprimirMatriz();
+
+    return 0;
 }
