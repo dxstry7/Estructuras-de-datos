@@ -6,21 +6,20 @@ template <typename T> class List {
   private:
     class Node {
     private:
-      T data;
+      const T data;
       Node *next;
 
     public:
-      // --- CONSTRUCTOR DEL NODO ----
+      // --- CONSTRUCTOR DEL NODO (SIN PARÁMETRO) ----
       Node() : data(), next(nullptr) {}
 
-      // --- CONSTRUCTOR DEL NODO CON PARÁMETRO ----
+      // --- CONSTRUCTOR DEL NODO (CON PARÁMETRO) ----
       Node(const T& value) : data(value), next(nullptr) {}
 
       // --- MÉTODOS DEL NODO ----
       Node* getNext() const { return next; } // OBTENER EL PUNTERO DEL SIGUIENTE NODO
 
-      const T& getvalue() const { return data; } // ← CORREGIDO: el tipo de retorno debe ser T, no Node
-      T& getvalue() { return data; } // ← CORREGIDO: el tipo de retorno debe ser T, no Node
+      const T& getValue() const { return data; } // ← CORREGIDO: el tipo de retorno debe ser T, no Node
 
       void setNext(Node *n) { next = n; } // ASIGNAR EL PUNTERO DEL SIGUIENTE NODO
     };
@@ -34,7 +33,7 @@ template <typename T> class List {
     List() : first(nullptr), last(nullptr), sz(0) {} // ← CORREGIDO: 'nullpt' debe ser 'nullptr'
 
     ~List() { // ← CORREGIDO: el destructor no debe tener guion
-      Node *temp = first;
+      const Node *temp = first;
       while (first != nullptr) {
         temp = first;
         first = first->getNext();
@@ -79,7 +78,7 @@ template <typename T> class List {
           sz--;
         }
       } else {
-        std::cout << "The list is empty, isn't possible delete the last element." << std::endl;
+        std::cerr << "The list is empty, isn't possible delete the last element." << std::endl;
       }
     }
 
@@ -106,47 +105,52 @@ template <typename T> class List {
           last = nullptr;
         }
       } else {
-        std::cout << "The list is empty, isn't possible delete the first element." << std::endl;
+        std::cerr << "The list is empty, isn't possible delete the first element." << std::endl;
       }
     }
-    T& front () { //DEVUELVE UN REFERENCIA AL PRIMER ELEMENTO DE LA LISTA, PERMITIENDO SU MODIFICACIÓN
+    
+    /* T& front () { //DEVUELVE UN REFERENCIA AL PRIMER ELEMENTO DE LA LISTA, PERMITIENDO SU MODIFICACIÓN
       if (!empty()) {
-        return first->getvalue();
+        return first->getValue();
       } else {
-        std::cout << "The list is empty, isn't possible return the first element." << std::endl;
+        std::cerr << "The list is empty, isn't possible return the first element." << std::endl;
         exit(EXIT_FAILURE); // TERMINA EL PROGRAMA, ES ALGO MUY RADICAL YA QUE NO PERMITE RECUPERARSE, SE USA CUANDO HAY UN ERROR GRAVE
       }
-    }
+    } */
+
     const T& front () const { // DEVUELVE UNA REFERENCIA CONSTANTE AL PRIMER ELEMENTO DE LA LISTA, SIN PERMITIR SU MODIFICACIÓN
       if (!empty()) {
-        return first->getvalue();
+        return first->getValue();
       } else {
-        std::cout << "The list is empty, isn't possible return the first element." << std::endl;
+        std::cerr << "The list is empty, isn't possible return the first element." << std::endl;
         exit(EXIT_FAILURE); // XQ HAY QUE COLOCAR UN THROW O UN EXIT SI TENEMOS UN CONDICIONAL QUE VERIFICA SI LA LISTA ESTA VACÍA????????????????
       }
     }
 
-    T& back() { //DEVUELVE UN REFERENCIA AL ÚLTIMO ELEMENTO DE LA LISTA, PERMITIENDO SU MODIFICACIÓN
+    /* T& back() { //DEVUELVE UN REFERENCIA AL ÚLTIMO ELEMENTO DE LA LISTA, PERMITIENDO SU MODIFICACIÓN
       if (!empty()) {
-        return last->getvalue();
+        return last->getValue();
       } else {
         std::cout << "The list is empty, isn't possible return the last element." << std::endl;
         exit(EXIT_FAILURE); // XQ HAY QUE COLOCAR UN THROW O UN EXIT SI TENEMOS UN CONDICIONAL QUE VERIFICA SI LA LISTA ESTA VACÍA????????????????
       }
-    }
+    } */
+
     const T& back() const { // DEVUELVE UNA REFERENCIA CONSTANTE AL ÚLTIMO ELEMENTO DE LA LISTA, SIN PERMITIR SU MODIFICACIÓN
       if (!empty()) {
-        return last->getvalue();
+        return last->getValue();
       } else {
-        std::cout << "The list is empty, isn't possible return the last element." << std::endl;
+        std::cerr << "The list is empty, isn't possible return the last element." << std::endl;
         exit(EXIT_FAILURE); // XQ HAY QUE COLOCAR UN THROW O UN EXIT SI TENEMOS UN CONDICIONAL QUE VERIFICA SI LA LISTA ESTA VACÍA????????????????
       }
     }
+
     unsigned int size() const { //DEVUELVE EL NÚMERO DE ELEMENTOS EN LA LISTA
       return sz; 
     }
+
     void clear() { //ELIMINA TODOS LOS ELEMENTOS DE LA LISTA
-      Node *temp = first;
+      Node *temp = nullptr;
       while (first != nullptr) {
         temp = first;
         first = first->getNext();
@@ -161,34 +165,35 @@ template <typename T> class List {
       }
       */
     }
+
     // ---- ES COMO ESPACIOS VECTORIALES DONDE SE PUEDE DEFINIR COMO VA A COMPORTARSE UN OPERADOR A BASE DE LO QUE SE DEFINA EN LA FUNCIÓN ----
     const T& operator[](unsigned int index) const { //SOBRECARGA DEL OPERADOR DE SUBÍNDICE PARA ACCEDER A LOS ELEMENTOS DE LA LISTA
       if (index >= sz) {
-        std::cout << "Index out of range." << std::endl;
+        std::cerr << "Index out of range." << std::endl;
         exit(EXIT_FAILURE); // XQ HAY QUE COLOCAR UN THROW O UN EXIT SI TENEMOS UN CONDICIONAL QUE VERIFICA SI EL ÍNDICE ESTÁ FUERA DE RANGO????????????????
       } else {
         Node *temp = first;
         for (unsigned int i = 0; i < index; i++) {
           temp = temp->getNext();
         }
-        return temp->getvalue();
+        return temp->getValue();
       }
     }
     T& operator[](unsigned int index) { //SOBRECARGA DEL OPERADOR DE SUBÍNDICE PARA PERMITIR LA MODIFICACIÓN DE ELEMENTOS
       if (index >= sz) {
-        std::cout << "Index out of range." << std::endl;
+        std::cerr << "Index out of range." << std::endl;
         exit(EXIT_FAILURE); // XQ HAY QUE COLOCAR UN THROW O UN EXIT SI TENEMOS UN CONDICIONAL QUE VERIFICA SI EL ÍNDICE ESTÁ FUERA DE RANGO????????????????
       } else {
         Node *temp = first;
         for (unsigned int i = 0; i < index; i++) {
           temp = temp->getNext();
         }
-        return temp->getvalue();
+        return temp->getValue();
       }
     }
     void insert(unsigned int index, const T& val) {
       if (index > sz) {
-        std::cout << "Index out of range" << std::endl;
+        std::cerr << "Index out of range" << std::endl;
         exit(EXIT_FAILURE); // XQ HAY QUE COLOCAR UN THROW O UN EXIT SI TENEMOS UN CONDICIONAL QUE VERIFICA SI EL ÍNDICE ESTÁ FUERA DE RANGO????????????????
       } else if (index == 0) {
         push_front(val);
@@ -200,14 +205,15 @@ template <typename T> class List {
         for (unsigned int i = 0; i < index - 1; i++) {
           temp = temp->getNext();
         } 
+        newNode->setNext(temp->getNext());
+        temp->setNext(newNode);
       } //EL BUCLE APUNTA A LA DIRECCIÓN ANTERIOR AL ÍNDICE DONDE SE DESEA INSERTAR
-      newNode -> setNext (temp -> getNext());
-      temp -> setNext (newNode);
       sz++;
     }
+    
     void erase(unsigned int index) {
       if (index >= sz) {
-          std::cout <<"Index out of range"<< std::endl;
+          std::cerr <<"Index out of range"<< std::endl;
       } else if (index == 0){
           pop_front();
       } else {
@@ -227,7 +233,7 @@ template <typename T> class List {
     void print() const {
       Node *temp = first;
       while (temp != nullptr) {
-        cout << temp->getvalue() << " ";
+        cout << temp->getValue() << " ";
         temp = temp->getNext();
       }
       cout << endl; 
